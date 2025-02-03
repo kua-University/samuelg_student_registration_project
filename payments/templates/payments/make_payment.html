@@ -1,0 +1,16 @@
+<!-- payments/templates/payments/make_payment.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Make Payment</title>
+</head>
+<body>
+    <h2>Make Payment for {{ form.cleaned_data.course.name }}</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Pay Now</button>
+    </form>
+</body>
+</html>
