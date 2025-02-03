@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Course List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        /* Navigation Bar Styles */
+        nav {
+            background-color: #333;
+            color: #fff;
+            padding: 15px;
+        }
+        nav ul {
+            list-style: none; /* Remove default list styling */
+            padding: 0; /* Remove padding */
+            margin: 0; /* Remove margin */
+        }
+        nav li {
+            display: inline; /* Display links in a single line */
+            margin-right: 15px; /* Space between links */
+        }
+        nav a {
+            color: #fff; /* White text for links */
+            text-decoration: none; /* Remove underline from links */
+        }
+        nav a:hover {
+            text-decoration: underline; /* Underline on hover */
+        }
+        /* Main Content Styles */
+        h1 {
+            text-align: center; /* Center the heading */
+            margin-top: 20px; /* Space from the top */
+        }
+        /* Course List Styles */
+        .course-list {
+            max-width: 600px; /* Max width for the course list */
+
+            margin: 20px auto; /* Center the list */
+            padding: 15px;
+            background: white; /* White background for the list */
+            border-radius: 5px; /* Rounded corners */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+        }
+        .course-list ul {
+            padding: 0; /* Remove padding */
+            list-style: none; /* Remove default list styling */
+        }
+        .course-list li {
+            padding: 10px; /* Padding for each list item */
+            border-bottom: 1px solid #ccc; /* Border between items */
+        }
+        .course-list li:last-child {
+            border-bottom: none; /* Remove border for the last item */
+        }
+        /* Admin Controls */
+        .admin-controls {
+            text-align: center; /* Center admin controls */
+            margin-top: 20px; /* Space above admin controls */
+        }
+        .admin-controls a {
+            display: inline-block; /* Make admin control links inline-block */
+            margin-top: 10px; /* Space above the link */
+            padding: 10px 15px; /* Padding for buttons */
+            background-color: #007bff; /* Button color */
+            color: white; /* Button text color */
+            text-decoration: none; /* Remove underline from links */
+            border-radius: 3px; /* Rounded corners */
+        }
+        .admin-controls a:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="{% url 'course_list' %}">Courses</a></li>
+            <li><a href="{% url 'register' %}">Register</a></li>
+            <li><a href="{% url 'login' %}">Login</a></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+            <li><a href="{% url 'make_payment' %}">Payments</a></li> <!-- Adjust the payment URL -->
+        </ul>
+    </nav>
+
+    <h1>Available Courses</h1>
+
+    <!-- Display available courses -->
+    <div class="course-list">
+        <ul>
+            {% for course in courses %}
+                <li>{{ course.name }} - Slots: {{ course.available_slots }}</li>
+            {% empty %}
+                <li>No courses available at the moment.</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Admin options to add a course -->
+    {% if is_admin %}
+        <div class="admin-controls">
+            <h3>Admin Controls</h3>
+            <a href="{% url 'add_course' %}">Add New Course</a>
+        </div>
+    {% endif %}
+
+</body>
+</html>
+
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <title>Course List</title>-->
+<!--    <style>-->
+<!--        body {-->
+<!--            font-family: Arial, sans-serif;-->
+<!--            background-color: #f4f4f4;-->
+<!--            margin: 0;-->
+<!--            padding: 0;-->
+<!--        }-->
+<!--        /* Navigation Bar Styles */-->
+<!--        nav {-->
+<!--            background-color: #333;-->
+<!--            color: #fff;-->
+<!--            padding: 15px;-->
+<!--        }-->
+<!--        nav ul {-->
+<!--            list-style: none;-->
+<!--            padding: 0;-->
+<!--            margin: 0;-->
+<!--        }-->
+<!--        nav li {-->
+<!--            display: inline;-->
+<!--            margin-right: 15px;-->
+<!--        }-->
+<!--        nav a {-->
+<!--            color: #fff;-->
+<!--            text-decoration: none;-->
+<!--        }-->
+<!--        nav a:hover {-->
+<!--            text-decoration: underline;-->
+<!--        }-->
+
+<!--        /* Main Content Styles */-->
+<!--        h1 {-->
+<!--            text-align: center;-->
+<!--            margin-top: 20px;-->
+<!--        }-->
+
+<!--        /* Course Blocks Styles */-->
+<!--        .course-list {-->
+<!--            display: flex;-->
+<!--            flex-wrap: wrap;-->
+<!--            justify-content: center;-->
+<!--            gap: 20px;-->
+<!--            padding: 20px;-->
+<!--        }-->
+<!--        .course-item {-->
+<!--            background: #fff;-->
+<!--            border-radius: 8px;-->
+<!--            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);-->
+<!--            overflow: hidden;-->
+<!--            width: 300px;-->
+<!--            text-align: center;-->
+<!--        }-->
+<!--        .course-item img {-->
+<!--            width: 100%;-->
+<!--            height: 200px;-->
+<!--            object-fit: cover;-->
+<!--        }-->
+<!--        .course-item h3 {-->
+<!--            margin: 10px 0;-->
+<!--        }-->
+<!--        .course-item p {-->
+<!--            padding: 0 10px;-->
+<!--            font-size: 14px;-->
+<!--            color: #555;-->
+<!--        }-->
+<!--        .course-item .price {-->
+<!--            font-weight: bold;-->
+<!--            color: #007bff;-->
+<!--            margin: 10px 0;-->
+<!--        }-->
+<!--        .course-item button {-->
+<!--            background-color: #007bff;-->
+<!--            color: #fff;-->
+<!--            border: none;-->
+<!--            padding: 10px 15px;-->
+<!--            margin-bottom: 15px;-->
+<!--            border-radius: 5px;-->
+<!--            cursor: pointer;-->
+<!--        }-->
+<!--        .course-item button:hover {-->
+<!--            background-color: #0056b3;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+
+<!--    <nav>-->
+<!--        <ul>-->
+<!--            <li><a href="{% url 'course_list' %}">Courses</a></li>-->
+<!--            <li><a href="{% url 'register' %}">Register</a></li>-->
+<!--            <li><a href="{% url 'login' %}">Login</a></li>-->
+<!--            <li><a href="{% url 'logout' %}">Logout</a></li>-->
+<!--            <li><a href="{% url 'make_payment' %}">Payments</a></li>-->
+<!--        </ul>-->
+<!--    </nav>-->
+
+<!--    <h1>Available Courses</h1>-->
+
+<!--    &lt;!&ndash; Display available courses &ndash;&gt;-->
+<!--    <div class="course-list">-->
+<!--        {% for course in courses %}-->
+<!--            <div class="course-item">-->
+<!--                <img src="{{ course.image_url }}" alt="{{ course.name }}">-->
+<!--                <h3>{{ course.name }}</h3>-->
+<!--                <p>{{ course.description }}</p>-->
+<!--                <p class="price">Price: ${{ course.price }}</p>-->
+<!--                <button>Enroll Now</button>-->
+<!--            </div>-->
+<!--        {% empty %}-->
+<!--            <p>No courses available at the moment.</p>-->
+<!--        {% endfor %}-->
+<!--    </div>-->
+
+<!--    &lt;!&ndash; Admin options to add a course &ndash;&gt;-->
+<!--    {% if is_admin %}-->
+<!--        <div class="admin-controls">-->
+<!--            <h3>Admin Controls</h3>-->
+<!--            <a href="{% url 'add_course' %}">Add New Course</a>-->
+<!--        </div>-->
+<!--    {% endif %}-->
+
+<!--</body>-->
+<!--</html>-->
+

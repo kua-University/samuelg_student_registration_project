@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image:url('images/images2.jfif');
+            background-size:cover;
+            background-position:center;
+            background-repeat:no-repeat;
+
+            margin: 0;
+            padding: 0;
+        }
+        /* Navigation Bar Styles */
+        nav {
+            background-color: #333;
+            color: #fff;
+            padding: 15px;
+        }
+        nav ul {
+            list-style: none; /* Remove default list styling */
+            padding: 0; /* Remove padding */
+        }
+        nav li {
+            display: inline; /* Display links in a single line */
+            margin-right: 15px; /* Space between links */
+        }
+        nav a {
+            color: #fff; /* White text for links */
+            text-decoration: none; /* Remove underline from links */
+        }
+        nav a:hover {
+            text-decoration: underline; /* Underline on hover */
+        }
+        /* Main Content Styles */
+        h2 {
+            text-align: center; /* Center the heading */
+            margin-top: 50px; /* Space from the top */
+        }
+        form {
+            max-width: 400px; /* Max width for the form */
+            margin: 0 auto; /* Center the form horizontally */
+            background: white; /* White background for the form */
+            padding: 20px; /* Padding inside the form */
+            border-radius: 5px; /* Rounded corners */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+        }
+        form div {
+            margin-bottom: 15px; /* Space between form fields */
+        }
+        form label {
+            display: block; /* Block display for labels */
+            margin-bottom: 5px; /* Space below labels */
+        }
+        form input[type="text"],
+        form input[type="password"] {
+            width: 100%; /* Full width input fields */
+            padding: 10px; /* Padding inside input fields */
+            border: 1px solid #ccc; /* Border around input fields */
+            border-radius: 3px; /* Rounded corners for input fields */
+        }
+        button {
+            width: 100%; /* Full width button */
+            padding: 10px; /* Padding inside the button */
+            background-color: #007bff; /* Blue background for the button */
+            color: white; /* White text for the button */
+            border: none; /* No border */
+            border-radius: 3px; /* Rounded corners for the button */
+            cursor: pointer; /* Pointer cursor on hover */
+        }
+        button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+    </style>
+</head>
+<body>
+<nav>
+    <ul>
+        <li><a href="{% url 'course_list' %}">Courses</a></li>
+        <li><a href="{% url 'register' %}">Register</a></li>
+        <li><a href="{% url 'login' %}">Login</a></li>
+        <li><a href="{% url 'logout' %}">Logout</a></li>
+
+
+    </ul>
+</nav>
+
+    <h2>Login</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}  <!-- Render form fields -->
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>
+
