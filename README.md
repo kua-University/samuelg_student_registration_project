@@ -1,4 +1,5 @@
 **Student Registration System**
+
 Overview
 The Student Registration System is a web-based application built using Django. It allows students to register, enroll in courses, and manage payments using Stripe. Administrators can oversee student activities and course management through a secure admin panel.
 Features
