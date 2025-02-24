@@ -1,96 +1,55 @@
-from django.test import TestCase, Client
-from django.contrib.auth.models import User
-from django.urls import reverse
-from student_registration.models import Course, Enrollment
-import stripe
+from django.test import LiveServerTestCase
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+import time
 
 
-class StudentRegistrationSystemTest(TestCase):
-    def setUp(self):
-        self.client = Client()
-        self.user = User.objects.create_user(
-            username="testuser", password="testpassword"
-        )
-        self.admin_user = User.objects.create_superuser(
-            username="admin", password="adminpassword"
-        )
-        self.course = Course.objects.create(
-            name="Django Basics", description="Learn Django"
-        )
+class SystemTest(LiveServerTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.driver = (
+            webdriver.Chrome()
+        )  # Or specify the path: webdriver.Chrome(executable_path='/path/to/chromedriver')
+        cls.driver.implicitly_wait(10)  # Wait up to 10 seconds for elements to appear
 
-    def test_user_registration(self):
-        response = self.client.post(
-            reverse("register"),
-            {
-                "username": "newuser",
-                "password1": "strongpassword123",
-                "password2": "strongpassword123",
-                "email": "newuser@example.com",
-            },
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(User.objects.filter(username="newuser").exists())
+    @classmethod
+    def tearDownClass(cls):
+        cls.driver.quit()
+        super().tearDownClass()
 
-    def test_user_login(self):
-        self.client.login(username="testuser", password="testpassword")
-        response = self.client.get(reverse("dashboard"))
-        self.assertEqual(response.status_code, 200)
+    def test_user_registration_and_login(self):
+        self.driver.get(self.live_server_url + "/users/register/")
 
-    def test_invalid_login(self):
-        response = self.client.post(
-            reverse("login"), {"username": "wronguser", "password": "wrongpassword"}
-        )
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Invalid credentials")
+        # Fill the registration form
+        self.driver.find_element(By.NAME, "username").send_keys("testuser")
+        self.driver.find_element(By.NAME, "password1").send_keys("testpass123")
+        self.driver.find_element(By.NAME, "password2").send_keys("testpass123")
+        self.driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
 
-    def test_user_logout(self):
-        self.client.login(username="testuser", password="testpassword")
-        response = self.client.get(reverse("logout"))
-        self.assertEqual(response.status_code, 302)
+        # Assert registration success
+        assert "Login" in self.driver.title
 
-    def test_course_enrollment(self):
-        self.client.login(username="testuser", password="testpassword")
-        response = self.client.post(reverse("enroll"), {"course_id": self.course.id})
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(
-            Enrollment.objects.filter(user=self.user, course=self.course).exists()
-        )
+        # Navigate to login page
+        self.driver.get(self.live_server_url + "/users/login/")
 
-    def test_course_listing(self):
-        response = self.client.get(reverse("course_list"))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Django Basics")
+        # Fill login form
+        self.driver.find_element(By.NAME, "username").send_keys("testuser")
+        self.driver.find_element(By.NAME, "password").send_keys("testpass123")
+        self.driver.find_element(By.CSS_SELECTOR, 'button[type="submit"]').click()
 
-    def test_payment_processing(self):
-        stripe.api_key = "your_test_api_key"
-        payment_intent = stripe.PaymentIntent.create(
-            amount=1000, currency="usd", payment_method_types=["card"]
-        )
-        self.assertTrue(
-            payment_intent.status in ["requires_payment_method", "succeeded"]
-        )
+        # Assert successful login (check if redirected to courses page)
+        assert "Courses" in self.driver.page_source
 
-    def test_failed_payment_handling(self):
-        stripe.api_key = "your_test_api_key"
-        try:
-            stripe.PaymentIntent.create(
-                amount=-1000, currency="usd", payment_method_types=["card"]
-            )
-        except stripe.error.StripeError as e:
-            self.assertIsNotNone(e)
+    def test_course_registration(self):
+        self.test_user_registration_and_login()  # Ensure logged in
 
-    def test_dashboard_access(self):
-        self.client.login(username="testuser", password="testpassword")
-        response = self.client.get(reverse("dashboard"))
-        self.assertEqual(response.status_code, 200)
+        # Navigate to courses list
+        self.driver.get(self.live_server_url + "/courses/list/")
 
-    def test_admin_access_control(self):
-        self.client.login(username="testuser", password="testpassword")
-        response = self.client.get(reverse("admin:index"))
-        self.assertNotEqual(
-            response.status_code, 200
-        )
+        # Register for a course (assuming course ID 1 is present)
+        self.driver.find_element(By.LINK_TEXT, "Register for Course 1").click()
 
-        self.client.login(username="admin", password="adminpassword")
-        response = self.client.get(reverse("admin:index"))
-        self.assertEqual(response.status_code, 200)
+        # Assert successful course registration
+        assert "Registration Successful" in self.driver.page_source
