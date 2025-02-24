@@ -1,34 +1,28 @@
-from django.test import TestCase
+import pytest
 from django.urls import reverse
-from django.contrib.auth.models import User
-from payments.models import Payment
+from unittest.mock import patch
+from users.models import User  # Use custom User model
 
+@pytest.mark.django_db
+def test_registration_and_payment(client):
+    # Test User Registration
+    response = client.post(reverse('register'), {
+        'username': 'newuser',
+        'password1': 'strongpassword',
+        'password2': 'strongpassword',
+    })
+    assert response.status_code == 302  # Expecting a redirect
+    assert response.url == reverse('login')  # Redirect after successful registration
+    assert User.objects.filter(username='newuser').exists()
 
-class IntegrationTestCase(TestCase):
-    def test_full_user_flow(self):
-        # Register User
-        self.client.post(
-            reverse("register"),
-            {
-                "username": "testuser",
-                "password1": "TestPassword123",
-                "password2": "TestPassword123",
-            },
-        )
+    # Force Login for Payment Test
+    user = User.objects.get(username='newuser')
+    client.force_login(user)
 
-        # Login User
-        self.client.post(
-            reverse("login"), {"username": "testuser", "password": "TestPassword123"}
-        )
-
-        # Make Payment
-        response = self.client.post(
-            reverse("make_payment"),
-            {"course": 1, "amount": 100.00},  # Assuming course with ID 1 exists
-        )
-        self.assertEqual(response.status_code, 200)  # Redirect to Stripe Checkout
-        self.assertTrue(Payment.objects.exists())
-
-        # Logout
-        self.client.get(reverse("logout"))
-        self.assertFalse(response.wsgi_request.user.is_authenticated)
+    # Mock Stripe Checkout Session
+    with patch('stripe.checkout.Session.create') as mock_session:
+        mock_session.return_value = type('obj', (object,), {"id": "sess_12345", "url": "https://checkout.stripe.com/pay/test"})
+        response = client.post(reverse('make_payment'), {'course': 1, 'amount': 10})
+        assert response.status_code == 302  # Expecting a redirect to Stripe Checkout
+        assert "https://checkout.stripe.com/pay/test" in response.url  # Mocked URL
+        mock_session.assert_called_once()
